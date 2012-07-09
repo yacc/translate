@@ -1,4 +1,5 @@
 require 'rspec/core/rake_task'
+require "bundler/gem_tasks"
 
 desc 'Default: run specs.'
 task :default => :spec
@@ -11,7 +12,7 @@ end
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = 'translate-rails3'
+    gem.name = 'translate-rails3-plus'
     gem.summary = %Q{Newsdesk translate plugin for Rails 3}
     gem.description = <<EOF
 This plugin provides a web interface for translating Rails I18n texts
@@ -20,12 +21,13 @@ The plugin has been tested only with the simple I18n backend that ships
 with Rails.
 I18n texts are read from and written to YAML files under config/locales.
 
-This gem is a fork of the original https://github.com/mynewsdesk/translate
-and also includes work from this fork: https://github.com/milann/translate
+This gem is a fork of https://github.com/romanbsd/translate.
+From the original https://github.com/mynewsdesk/translate
+which also includes work from this fork: https://github.com/milann/translate
 EOF
-    gem.email = 'romanbsd@yahoo.com'
-    gem.homepage = 'https://github.com/romanbsd/translate'
-    gem.authors = ['Peter Marklund', 'Milan Novota', 'Roman Shterenzon']
+    gem.email = 'gsmedley@kanayo.com'
+    gem.homepage = 'https://github.com/gsmedley/translate'
+    gem.authors = ['Peter Marklund', 'Milan Novota', 'Roman Shterenzon', 'Garth Smedley']
     gem.add_dependency 'ya2yaml', '~> 0.30' # For UTF-8 support in YAML
   end
   Jeweler::GemcutterTasks.new
