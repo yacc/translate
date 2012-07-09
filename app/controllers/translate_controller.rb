@@ -12,10 +12,12 @@ class TranslateController < ActionController::Base
     initialize_keys
     filter_by_key_pattern
     filter_by_text_pattern
+    filter_by_translated_text_pattern
     filter_by_translated_or_changed
     sort_keys
     paginate_keys
     @total_entries = @keys.size
+    @page_title = page_title
   end
 
   # POST /translate
@@ -26,7 +28,7 @@ class TranslateController < ActionController::Base
     Translate::Log.new(@from_locale, @to_locale, params[:key].keys).write_to_file
     force_init_translations # Force reload from YAML file
     flash[:notice] = "Translations stored"
-    redirect_to params.slice(:filter, :sort_by, :key_type, :key_pattern, :text_type, :text_pattern).merge({:action => :index})
+    redirect_to params.slice(:filter, :sort_by, :key_type, :key_pattern, :text_type, :text_pattern, :translated_text_type, :translated_text_pattern).merge({:action => :index})
   end
 
   # GET /translate/reload
@@ -47,10 +49,31 @@ class TranslateController < ActionController::Base
     end
   end
 
+  def page_title
+    "Translate"
+  end
+
   def lookup(locale, key)
     I18n.backend.send(:lookup, locale, key)
   end
   helper_method :lookup
+
+  def from_locales
+    # Attempt to get the list of locale from configuration
+    from_loc = Rails.application.config.from_locales if Rails.application.config.respond_to?(:from_locales)
+    return I18n.available_locales if from_loc.blank?
+    raise StandardError, "from_locale expected to be an array" if from_loc.class != Array
+    from_loc
+  end
+  helper_method :from_locales
+
+  def to_locales
+    to_loc = Rails.application.config.to_locales if Rails.application.config.respond_to?(:to_locales)
+    return I18n.available_locales if to_loc.blank?
+    raise StandardError, "to_locales expected to be an array" if to_loc.class != Array
+    to_loc
+  end
+  helper_method :to_locales 
 
   def filter_by_translated_or_changed
     params[:filter] ||= 'all'
@@ -93,6 +116,20 @@ class TranslateController < ActionController::Base
         !lookup(@from_locale, key).present? || lookup(@from_locale, key).to_s.downcase != params[:text_pattern].downcase
       else
         raise "Unknown text_type '#{params[:text_type]}'"
+      end
+    end
+  end
+
+  def filter_by_translated_text_pattern
+    return if params[:translated_text_pattern].blank?
+    @keys.reject! do |key|
+      case params[:translated_text_type]
+      when 'contains' then
+        !lookup(@to_locale, key).present? || !lookup(@to_locale, key).to_s.downcase.index(params[:translated_text_pattern].downcase)
+      when 'equals' then
+        !lookup(@to_locale, key).present? || lookup(@to_locale, key).to_s.downcase != params[:translated_text_pattern].downcase
+      else
+        raise "Unknown translated_text_type '#{params[:translated_text_type]}'"
       end
     end
   end
@@ -143,9 +180,13 @@ class TranslateController < ActionController::Base
     I18n.default_locale
   end
 
+  def default_to_locale
+    :en
+  end
+
   def set_locale
     session[:from_locale] ||= default_locale
-    session[:to_locale] ||= :en
+    session[:to_locale] ||= default_to_locale
     session[:from_locale] = params[:from_locale] if params[:from_locale].present?
     session[:to_locale] = params[:to_locale] if params[:to_locale].present?
     @from_locale = session[:from_locale].to_sym
@@ -166,16 +207,16 @@ class TranslateController < ActionController::Base
     @log_hash ||= Translate::Log.new(@from_locale, @to_locale, {}).read
   end
 
-	def process_array_parameters(parameter)
-		reconstructed_hash = Hash.new
+  def process_array_parameters(parameter)
+    reconstructed_hash = Hash.new
 
-		parameter.each do |key, value|
-			if value.is_a?(String)
-				reconstructed_hash[key] = value
-			elsif value.is_a?(Hash)
-				reconstructed_hash[key] = Translate::Keys.arraylize(value)
-			end
-		end
-		reconstructed_hash
-	end
+    parameter.each do |key, value|
+      if value.is_a?(String)
+        reconstructed_hash[key] = value
+      elsif value.is_a?(Hash)
+        reconstructed_hash[key] = Translate::Keys.arraylize(value)
+      end
+    end
+    reconstructed_hash
+  end
 end

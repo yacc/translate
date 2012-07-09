@@ -1,5 +1,4 @@
 <%
-@page_title = "Translate"
 show_filters = ["all", "untranslated", "translated"]
 show_filters << "changed" if @from_locale != @to_locale
 %>
@@ -37,8 +36,13 @@ show_filters << "changed" if @from_locale != @to_locale
         <%= text_field_tag(:text_pattern, params[:text_pattern], :size => 50, :id => "text_pattern_value", :class => "text-default") %>	     
       </p>
       <p>
+       <label for="translated_text_pattern_value">Translated Text</label>
+       <%= select_tag(:translated_text_type, options_for_select(['contains', 'equals'], params[:translated_text_type])) %>
+       <%= text_field_tag(:translated_text_pattern, params[:translated_text_pattern], :size => 50, :id => "translated_text_pattern_value", :class => "text-default") %>       
+      </p>
+      <p>
         <%= submit_tag "Search" %>
-        <%= link_to "clear", params.merge({:text_pattern => nil, :key_pattern => nil}) %>
+        <%= link_to "clear", params.merge({:text_pattern => nil, :translated_text_pattern => nil, :key_pattern => nil}) %>
       </p>
     </div>
   <% end %>
@@ -66,7 +70,7 @@ show_filters << "changed" if @from_locale != @to_locale
       <%= hidden_field_tag(:text_pattern, params[:text_pattern], :id => "hid_text_pattern") %>
     </div>
     <div class="translations">
-      <h2>Translations from <%= @from_locale %> to <%= @to_locale %></h2>
+      <h2>Translations from <span class='big-locale'><%= @from_locale %></span> to <span class='big-locale'><%= @to_locale %></span></h2>
       <p class="translate">
         <%= submit_tag "Save Translations" %>
       </p>

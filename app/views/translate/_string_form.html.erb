@@ -9,7 +9,11 @@
 <div class="translation">    
 <% if from_text.present? %>
 	<p class="translation-text">
-		<%= simple_format(h(from_text)) %>
+		<% if from_text.starts_with?(" ") || from_text.ends_with?(" ")%>
+	      <%= simple_format("&rarr;" + h(from_text) + "&larr;") %>
+	    <% else %>
+	      <%= simple_format(h(from_text)) %>
+	    <% end  %>
 	</p>
 <% end %>
 <p class="edit-form">
