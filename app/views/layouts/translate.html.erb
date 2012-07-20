@@ -53,6 +53,45 @@
         document.getElementsByTagName("head")[0].appendChild(s);
     }
 
+    function checkErrors()
+    {  
+    	var errors = [] 	
+    	$$('.translation-error').each(function(item) { 
+    		item.removeClassName("translation-error") 
+    		item.select('.error-text')[0].innerHTML = ""
+    	});
+
+    	$$('.single-translation').each(function(item) {
+            var val =  item.select('.edit-field')[0].value 
+            if( !val.blank() )
+            {
+            	var patt1=/\{[^\{\}]*\}/g;
+	            var val_subs = val.match(patt1)
+	            var key = item.select('.translation-text')[0].innerHTML 
+                var key_subs = key.match(patt1)
+	            if( val_subs == null ){ val_subs = [] }
+	            if( key_subs == null ){ key_subs = [] }
+	            if( val_subs.sort().join('') != key_subs.sort().join('') )
+	            {
+                   item.addClassName("translation-error");
+                   errors.push( item )
+                   item.select('.error-text')[0].innerHTML = "Mismatched {} substitution strings."
+	            }
+	        }
+         });
+    	return errors
+   }
+
+    function testAndSave()
+    {  
+    	var errors = checkErrors()
+     	
+    	if( errors.length == 0 || confirm( "Some transtalations have errors, save anyway?"))
+        {
+        	document.forms["translate_form"].submit();
+        }   	  
+    }
+
     /*
     prototypeUtils.js from http://jehiah.com/
     Licensed under Creative Commons.
@@ -299,10 +338,10 @@
 		padding:0.7em 0.5em 0.5em 1.5em;
 	}
 	div.translation{
-		padding:1em;
-		border-bottom:solid 0.2em #d46021;
-    border-left: solid 0.1em #D46021;
-		margin:0 1em 1em 1.6em;
+		padding: 11px;
+		border-bottom:solid 1px #d46021;
+        border-left: solid 1px #D46021;
+		margin:14px 12px 12px 19px;
 	}
 	div.translation input, div.translation textarea{
 		width:98%;
@@ -332,10 +371,10 @@
 		font-weight:bold;
 	}
 	div.selected{
-		margin:0 1em 1em 1em;
-		border-left:solid 0.6em #d46021;
-		border-right:solid 0.2em #d46021;
-		border-top:solid 0.2em #d46021;
+		margin:12px 10px 12px 12px;
+		border-left:solid 8px #d46021;
+		border-right:solid 2px #d46021;
+		border-top:solid 2px #d46021;
 		background:#f1f1f1;
 	}
 	.display{display:block !important;}
@@ -359,24 +398,33 @@
     color: #597B5C;
     background-color: #BCFFBD;
   }
+  .translation-error .edit-field
+  {
+  	border: 1px solid red;
+  }
+  .error-text
+  {
+  	color: red;
+  }
   .big-locale
   {
     font-size: 32px;
-    color: red;
   }
     </style>
 	<script type="text/javascript">
 	onload = function (){
 		$$("div.translation input, div.translation textarea").each(function (e){
 			Event.observe(e,'focus', function (elm){
-				this.up(1).down(".translation-text").addClassName("focus-text");
-				this.up(1).addClassName("selected");
+				this.up(".single-translation").down(".translation-text").addClassName("focus-text");
+				this.up(".translation").addClassName("selected");
 			});
 			Event.observe(e,'blur', function (elm,e){
-				this.up(1).down(".translation-text").removeClassName("focus-text");
-				this.up(1).removeClassName("selected");
+				this.up(".single-translation").down(".translation-text").removeClassName("focus-text");
+				this.up(".translation").removeClassName("selected");
 			});
 		});
+
+		checkErrors()
 	}
 	</script>
   </head>
