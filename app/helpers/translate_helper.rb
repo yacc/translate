@@ -32,15 +32,11 @@ module TranslateHelper
   end
 
   def translate_javascript_includes
-    sources = []
     if File.exists?(File.join(Rails.root, "public", "javascripts", "prototype.js"))
-      sources << "/javascripts/prototype.js"
+      javascript_include_tag("prototype.js")
     else
-      sources << "http://ajax.googleapis.com/ajax/libs/prototype/1.7.0.0/prototype.js"
+      javascript_include_tag("http://ajax.googleapis.com/ajax/libs/prototype/1.7.0.0/prototype.js")
     end
-    sources.map do |src|
-      %Q{<script src="#{src}" type="text/javascript"></script>}
-    end.join("\n").html_safe
   end
 
   def translate_link(key, text, from, to)
