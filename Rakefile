@@ -12,7 +12,7 @@ end
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = 'translate-rails3-plus'
+    gem.name = 'translate-rails3'
     gem.summary = %Q{Newsdesk translate plugin for Rails 3}
     gem.description = <<EOF
 This plugin provides a web interface for translating Rails I18n texts
