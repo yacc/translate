@@ -85,7 +85,16 @@ class TranslateController < ActionController::Base
       when 'translated'
         lookup(@to_locale, key).blank?
       when 'changed'
-        old_from_text(key).blank? || lookup(@from_locale, key) == old_from_text(key)
+        lookup(@from_locale, key).to_s == lookup(@to_locale, key).to_s 
+      when 'list_changed'
+        fr = lookup(@from_locale, key).to_s.squish  
+        to = lookup(@to_locale, key).to_s.squish 
+        if fr.downcase != to.downcase
+          p '--'
+          p 'c:' + fr
+          p 'g:' + to
+        end
+        fr.downcase == to.downcase
       else
         raise "Unknown filter '#{params[:filter]}'"
       end
@@ -191,20 +200,6 @@ class TranslateController < ActionController::Base
     session[:to_locale] = params[:to_locale] if params[:to_locale].present?
     @from_locale = session[:from_locale].to_sym
     @to_locale = session[:to_locale].to_sym
-  end
-
-  def old_from_text(key)
-    return @old_from_text[key] if @old_from_text && @old_from_text[key]
-    @old_from_text = {}
-    text = key.split(".").inject(log_hash) do |hash, k|
-      hash ? hash[k] : nil
-    end
-    @old_from_text[key] = text
-  end
-  helper_method :old_from_text
-
-  def log_hash
-    @log_hash ||= Translate::Log.new(@from_locale, @to_locale, {}).read
   end
 
   def process_array_parameters(parameter)
