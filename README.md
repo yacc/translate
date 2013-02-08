@@ -34,7 +34,7 @@ The missing task shows you any I18n keys in your code that do not have translati
 The merge_keys task is supposed to be used in conjunction with Sven Fuch's Rails I18n TextMate bundle (http://github.com/svenfuchs/rails-i18n/tree/master). Texts and keys extracted with the TextMate bundle end up in the temporary file log/translations.yml. When you run the merge_keys rake task the keys are moved over to the corresponding I18n locale file, i.e. config/locales/sv.yml. The merge_keys task also checks for overwrites of existing keys by warning you that one of your extracted keys already exists with a different translation.
 
 The google task is used for auto translating from one locale to another using Google Translate.
-* Note: this task is currently broken, as Google is now charging for the Google Translate service.
+* Note: You need a valid Google Translate API key for this to work (https://developers.google.com/translate/)
 
 The changed rake task can show you between one YAML file to another which keys have had their texts changed.
 

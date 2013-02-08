@@ -130,16 +130,19 @@ namespace :translate do
 
     # Depends on httparty gem
     # http://www.robbyonrails.com/articles/2009/03/16/httparty-goes-foreign
+    # GET https://www.googleapis.com/language/translate/v2?key=INSERT-YOUR-KEY&source=en&target=de&q=Hello%20world
     class GoogleApi
       include HTTParty
-      base_uri 'ajax.googleapis.com'
+      base_uri 'https://www.googleapis.com'
+      
       def self.translate(string, to, from)
         tries = 0
         begin
-          get("/ajax/services/language/translate",
-            :query => {:langpair => "#{from}|#{to}", :q => string, :v => 1.0},
+          get("/language/translate/v2",
+            :query => {:source => from, :target => to,  :q => string , :key => Translate.api_key },
             :format => :json)
-        rescue 
+        rescue Exception => e
+          pp e
           tries += 1
           puts("SLEEPING - retrying in 5...")
           sleep(5)
