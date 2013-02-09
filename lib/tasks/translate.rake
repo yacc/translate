@@ -162,7 +162,8 @@ namespace :translate do
         print "#{key}: '#{from_text[0, 40]}' => "
         if !translations[from_text]
           response = GoogleApi.translate(from_text, ENV['TO'], ENV['FROM'])
-          translations[from_text] = response["responseData"] && response["responseData"]["translatedText"]
+          # translations[from_text] = response["responseData"] && response["responseData"]["translatedText"]
+          translations[from_text] = response["data"] && response["data"]["translations"][0] && response["data"]["translations"][0]["translatedText"]
         end
         if !(translation = translations[from_text]).blank?
           translation.gsub!(/\(\(([a-z_.]+)\)\)/i, '{{\1}}')
@@ -174,7 +175,7 @@ namespace :translate do
             puts "SKIPPING since interpolations were messed up: '#{translation[0,40]}'"
           end
         else
-          puts "NO TRANSLATION - #{response.inspect}"
+          puts "NO TRANSLATION - #{response["data"]["translations"][0]}"
         end
       end
     end
